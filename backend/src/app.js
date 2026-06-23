@@ -11,11 +11,20 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const app = express();
 
 // Middleware
-app.use(cors()); // Allow all origins (good for demo)
+app.use(cors({
+  origin: [
+    'https://vender-quotaion-system-1iu2.vercel.app',
+    'http://localhost:5173'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes – cleaned up (no duplicates)
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/requests', requestRoutes);
