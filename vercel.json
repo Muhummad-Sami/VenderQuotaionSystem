@@ -1,7 +1,8 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "backend/src/index.js",
+      "src": "backend/src/server.js",
       "use": "@vercel/node"
     },
     {
@@ -15,12 +16,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/src/index.js"
+      "dest": "backend/src/server.js"
     },
     {
       "src": "/(.*)",
       "dest": "frontend/index.html"
     }
-  ],
-  "outputDirectory": "frontend/dist"
+  ]
 }
