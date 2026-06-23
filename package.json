@@ -1,0 +1,11 @@
+{
+  "name": "vendor-quotation-system",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "node backend/src/server.js"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.2.29"
+  }
+}
