@@ -10,8 +10,8 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
-// Middleware
-app.use(cors({
+// CORS
+const corsOptions = {
   origin: [
     'https://vender-quotaion-system-1iu2.vercel.app',
     'http://localhost:5173'
@@ -19,8 +19,11 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.options('*', cors());
+};
+
+app.use(cors(corsOptions));
+app.options('/{*path}', cors(corsOptions)); // Express 5 wildcard syntax
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -41,9 +44,7 @@ app.get('/api/health', (req, res) => {
 // Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
