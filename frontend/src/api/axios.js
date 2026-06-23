@@ -1,6 +1,7 @@
 ﻿// frontend/src/api/axios.js
 import axios from 'axios';
 
+// Use environment variable or fallback
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const api = axios.create({
@@ -8,6 +9,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // ✅ Important for CORS
 });
 
 api.interceptors.request.use(
@@ -21,4 +23,4 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default api;  // ⚠️ THIS LINE MUST EXIST!
+export default api;

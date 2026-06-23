@@ -1,3 +1,4 @@
+// backend/src/app.js
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
@@ -10,24 +11,40 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
-// CORS
-const corsOptions = {
-  origin: [
-    'https://vender-quotaion-system-1iu2.vercel.app',
-    'http://localhost:5173'
-  ],
+// ============================================================
+// ✅ CORS Middleware – Allow Your Frontend
+// ============================================================
+const allowedOrigins = [
+  'https://vender-quotaion-system-1iu2.vercel.app', // Your frontend URL
+  'https://vender-quotaion-system.vercel.app',      // Your backend URL
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
 
-app.use(cors(corsOptions));
-app.options('/{*path}', cors(corsOptions)); // Express 5 wildcard syntax
-
+// ============================================================
+// ✅ Express Middleware
+// ============================================================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// ============================================================
+// ✅ Routes
+// ============================================================
 app.use('/api/auth', authRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/requests', requestRoutes);
@@ -36,15 +53,21 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/activities', activityRoutes);
 
-// Health Check
+// ============================================================
+// ✅ Health Check
+// ============================================================
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Error Handler
+// ============================================================
+// ✅ Error Handler
+// ============================================================
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  if (res.headersSent) return next(err);
+  if (res.headersSent) {
+    return next(err);
+  }
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
