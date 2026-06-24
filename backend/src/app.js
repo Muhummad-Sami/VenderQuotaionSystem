@@ -15,7 +15,6 @@ const app = express();
 // ============================================================
 // ✅ Compression – Smaller responses = Faster loading
 // ============================================================
-const compression = require('compression');
 app.use(compression());
 // ============================================================
 // ✅ CORS Middleware – Allow Your Frontend
