@@ -3,6 +3,14 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
+// ✅ Add validation
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+const missingVars = requiredEnvVars.filter(key => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missingVars.join(', ')}`);
+}
+
 module.exports = {
   PORT: process.env.PORT || 5000,
   MONGO_URI: process.env.MONGO_URI,
