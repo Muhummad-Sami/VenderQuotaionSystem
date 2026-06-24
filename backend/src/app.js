@@ -1,6 +1,7 @@
 // backend/src/app.js
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression'); // ✅ ADD THIS
 const authRoutes = require('./routes/auth.routes');
 const vendorRoutes = require('./routes/vendor.routes');
 const requestRoutes = require('./routes/request.routes');
@@ -11,6 +12,11 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
+// ============================================================
+// ✅ Compression – Smaller responses = Faster loading
+// ============================================================
+const compression = require('compression');
+app.use(compression());
 // ============================================================
 // ✅ CORS Middleware – Allow Your Frontend
 // ============================================================
@@ -23,7 +29,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -54,10 +59,21 @@ app.use('/api/pdf', pdfRoutes);
 app.use('/api/activities', activityRoutes);
 
 // ============================================================
-// ✅ Health Check
+// ✅ Health Check (keep warm)
 // ============================================================
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// ============================================================
+// ✅ Ping Endpoint – For cron job to keep function warm
+// ============================================================
+app.get('/api/ping', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    message: 'Function is warm!'
+  });
 });
 
 // ============================================================
