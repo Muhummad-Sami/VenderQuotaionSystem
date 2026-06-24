@@ -1,5 +1,7 @@
+// frontend/src/pages/admin/ActivityLogs.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const ActivityLogs = () => {
   const [activities, setActivities] = useState([]);
@@ -14,7 +16,7 @@ const ActivityLogs = () => {
       setLoading(true);
       const res = await api.get(`/activities?page=${pageNum}&limit=20${filter ? `&action=${filter}` : ''}`);
       setActivities(res.data.activities);
-      setTotalPages(res.data.pagination.pages || 1);
+      setTotalPages(res.data.pagination?.pages || 1);
       setPage(pageNum);
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -41,6 +43,11 @@ const ActivityLogs = () => {
     fetchActivities(1);
   }, [filter]);
 
+  // ✅ Show loading spinner
+  if (loading && activities.length === 0) {
+    return <LoadingSpinner />;
+  }
+
   const actionColors = {
     login: 'bg-green-500/20 text-green-300 border-green-500/30',
     logout: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
@@ -59,17 +66,12 @@ const ActivityLogs = () => {
     return action.replace(/_/g, ' ').toUpperCase();
   };
 
-  if (loading && activities.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-6">
       <div className="max-w-7xl mx-auto animate-fade-in">
         <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl font-bold text-white">📊 Activity Logs</h1>
           <div className="flex gap-3">
-            {/* ✅ FIXED: Dropdown with visible text */}
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -107,13 +109,13 @@ const ActivityLogs = () => {
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
               <p className="text-white/50 text-sm">Most Common Action</p>
               <p className="text-xl font-bold text-white">
-                {stats.actionCounts[0]?._id?.replace(/_/g, ' ').toUpperCase() || 'N/A'}
+                {stats.actionCounts?.[0]?._id?.replace(/_/g, ' ').toUpperCase() || 'N/A'}
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 col-span-2">
               <p className="text-white/50 text-sm">Actions Breakdown</p>
               <div className="flex flex-wrap gap-2 mt-1">
-                {stats.actionCounts.slice(0, 5).map((item) => (
+                {stats.actionCounts?.slice(0, 5).map((item) => (
                   <span key={item._id} className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/70">
                     {item._id.replace(/_/g, ' ')}: {item.count}
                   </span>

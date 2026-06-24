@@ -1,12 +1,14 @@
+// frontend/src/pages/Compare.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Compare = () => {
   const [comparisonData, setComparisonData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [exporting, setExporting] = useState(false); // 🆕 for loading state
+  const [exporting, setExporting] = useState(false);
   const { user, isAdmin } = useAuth();
 
   const fetchComparison = async () => {
@@ -34,7 +36,6 @@ const Compare = () => {
     }
   };
 
-  // 🆕 PDF Export function
   const exportPDF = async () => {
     if (comparisonData.length === 0) {
       alert('No data to export');
@@ -46,10 +47,9 @@ const Compare = () => {
       const response = await api.post(
         '/pdf/comparison',
         { comparisonData },
-        { responseType: 'blob' } // important for binary data
+        { responseType: 'blob' }
       );
 
-      // Create a download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -66,8 +66,14 @@ const Compare = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-white">Loading comparison...</div>;
-  if (error) return <div className="min-h-screen flex items-center justify-center text-red-400">{error}</div>;
+  // ✅ Show loading spinner
+  if (loading) return <LoadingSpinner />;
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center text-red-400">
+      {error}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-6">
@@ -75,7 +81,6 @@ const Compare = () => {
         <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold text-white">📊 Quotation Comparison</h1>
           <div className="flex gap-3">
-            {/* 🆕 PDF Export Button */}
             <button
               onClick={exportPDF}
               disabled={exporting || comparisonData.length === 0}
