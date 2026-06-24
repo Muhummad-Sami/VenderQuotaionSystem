@@ -3,32 +3,11 @@ const app = require('./app');
 const connectDB = require('./config/db');
 
 let cachedDb = null;
-let isConnecting = false;
-
-const startServer = async () => {
-  try {
-    if (cachedDb) return app;
-    
-    if (!isConnecting) {
-      isConnecting = true;
-      cachedDb = await connectDB();
-      console.log('✅ MongoDB connected successfully');
-    } else {
-      // Wait for connection if already in progress
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return startServer();
-    }
-    return app;
-  } catch (error) {
-    console.error('❌ Database connection error:', error.message);
-    throw error;
-  } finally {
-    isConnecting = false;
-  }
-};
 
 module.exports = async (req, res) => {
   try {
+    console.log('🔹 Request received:', req.method, req.url);
+
     // CORS headers
     const allowedOrigins = [
       'https://vender-quotaion-system-1iu2.vercel.app',
@@ -53,14 +32,21 @@ module.exports = async (req, res) => {
       return res.status(200).end();
     }
 
-    // Ensure database is connected
-    await startServer();
+    // Connect to database (cache connection)
+    if (!cachedDb) {
+      console.log('🔹 Connecting to MongoDB...');
+      cachedDb = await connectDB();
+      console.log('✅ MongoDB connected');
+    }
+
+    console.log('🔹 Passing request to Express app...');
     return app(req, res);
   } catch (error) {
-    console.error('❌ Server error:', error.message);
-    return res.status(500).json({ 
+    console.error('❌ ERROR:', error.message);
+    console.error('❌ Stack:', error.stack);
+    return res.status(500).json({
       error: 'Internal Server Error',
-      message: error.message 
+      message: error.message,
     });
   }
 };
